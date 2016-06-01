@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 public class ViveCtrl : MonoBehaviour {
     private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller {
+    public SteamVR_Controller.Device controller {
         get
         {
             return SteamVR_Controller.Input((int)trackedObj.index);
