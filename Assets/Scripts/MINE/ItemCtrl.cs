@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class ItemCtrl : MonoBehaviour {
+    private Material[] mat;
     private Rigidbody rb;
 
     private bool currentlyInteracting;
@@ -14,6 +15,9 @@ public class ItemCtrl : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody>();
+        mat = GetComponent<Renderer>().materials;
+        mat[1].SetFloat("_Outline", 0);
+
         interactionPoint = new GameObject().transform;
         interactionPoint.name = "InteractionPoint";
         interactionPoint.SetParent(this.transform);
@@ -31,10 +35,10 @@ public class ItemCtrl : MonoBehaviour {
             }
         }
 	}
-
     public void StartInteraction (ViveCtrl hand) {
         attachedHand = hand;
         rb.useGravity = false;
+        OutlineOff();
 
         interactionPoint.position = hand.transform.position;
         interactionPoint.rotation = hand.transform.rotation;
@@ -48,7 +52,7 @@ public class ItemCtrl : MonoBehaviour {
             attachedHand = null;
             rb.useGravity = true;
             rb.velocity = hand.controller.velocity;
-
+            
             this.transform.SetParent(null);
             currentlyInteracting = false;
         }
@@ -56,5 +60,13 @@ public class ItemCtrl : MonoBehaviour {
 
     public bool IsInteracting () {
         return currentlyInteracting;
+    }
+
+    public void OutlineOn () {
+        mat[1].SetFloat("_Outline", 0.003f);
+    }
+
+    public void OutlineOff () {
+        mat[1].SetFloat("_Outline", 0f);
     }
 }

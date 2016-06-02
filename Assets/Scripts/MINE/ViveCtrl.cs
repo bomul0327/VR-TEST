@@ -16,7 +16,7 @@ public class ViveCtrl : MonoBehaviour {
     private Valve.VR.EVRButtonId menuButton = Valve.VR.EVRButtonId.k_EButton_ApplicationMenu;
 
     private HashSet<ItemCtrl> touchedItems = new HashSet<ItemCtrl>();
-    private ItemCtrl closestItem;
+
     private ItemCtrl interactingItem;
 	// Use this for initialization
 	void Start () {
@@ -29,20 +29,7 @@ public class ViveCtrl : MonoBehaviour {
         if (controller == null) { return; }
 
         if (controller.GetPressDown(gripButton)) {
-            float distance = 0.0f;
-            float minDistance = float.MaxValue;
-
-
-            foreach(ItemCtrl item in touchedItems) {
-                distance = (item.transform.position - this.transform.position).sqrMagnitude;
-                if(distance < minDistance) {
-                    minDistance = distance;
-                    closestItem = item;
-                }
-            }
-
-            interactingItem = closestItem;
-            closestItem = null;
+            interactingItem = FindClosestTouchedItem();
 
             if (interactingItem) {
                 if (interactingItem.IsInteracting()) {
@@ -57,10 +44,26 @@ public class ViveCtrl : MonoBehaviour {
         }
 	}
 
+    ItemCtrl FindClosestTouchedItem () {
+        float distance = 0.0f;
+        float minDistance = float.MaxValue;
+        ItemCtrl closestItem = null;
+
+        foreach (ItemCtrl item in touchedItems) {
+            distance = (item.transform.position - this.transform.position).sqrMagnitude;
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestItem = item;
+            }
+        }
+        return closestItem;
+    }
+
     void OnTriggerEnter(Collider coll) {
         ItemCtrl collidedItem = coll.GetComponent<ItemCtrl>();
         if (collidedItem) {
             touchedItems.Add(collidedItem);
+            FindClosestTouchedItem().OutlineOn();
         }
     }
 
@@ -68,6 +71,7 @@ public class ViveCtrl : MonoBehaviour {
         ItemCtrl collidedItem = coll.GetComponent<ItemCtrl>();
         if (collidedItem) {
             touchedItems.Remove(collidedItem);
+            collidedItem.OutlineOff();
         }
     }
 }
