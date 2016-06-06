@@ -6,8 +6,7 @@ using System.Collections;
 public class TeleportCtrl : MonoBehaviour {
     private Vector3 destinationVector = Vector3.zero;
 
-    public float blinkTransitionTime = 0.3f;
-    public float exitBlinkTransitionTime = 0.5f;
+    public float blinkTransitionTime = 0.15f;
 
 
 	// Use this for initialization
@@ -15,18 +14,18 @@ public class TeleportCtrl : MonoBehaviour {
 
 	}
 	
-    public void Blink () {
-        SteamVR_Fade.Start(Color.black, exitBlinkTransitionTime);
+    void Blink () {
+        SteamVR_Fade.Start(Color.black, 0);
     }
     
-    public void ExitBlink() {
-        SteamVR_Fade.Start(Color.clear, exitBlinkTransitionTime);
+    void ExitBlink() {
+        SteamVR_Fade.Start(Color.clear, 1);
     }
     public void Teleport () {
+        Blink();
+        Invoke("ExitBlink", blinkTransitionTime);            	
         destinationVector = new Vector3(destinationVector.x, transform.parent.position.y, destinationVector.z);
         transform.parent.position = destinationVector;
-        Blink();
-        Invoke("ExitBlink", blinkTransitionTime);
     }
 
     public void SetTeleportPosition (Vector3 position) {
