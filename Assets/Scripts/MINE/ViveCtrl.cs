@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 public class ViveCtrl : MonoBehaviour {
+    public bool isLaserPointerOn = false;
+    public bool isTeleportOn = false;
+
     private SteamVR_TrackedObject trackedObj;
     public SteamVR_Controller.Device controller {
         get
@@ -18,16 +21,35 @@ public class ViveCtrl : MonoBehaviour {
     private HashSet<ItemCtrl> touchedItems = new HashSet<ItemCtrl>();
 
     private ItemCtrl interactingItem;
+    private LaserPointerCtrl laserPointer;
+    private TeleportCtrl teleport;
+
 	// Use this for initialization
 	void Start () {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
+
+        
+        if (GetComponent<LaserPointerCtrl>()) {
+            laserPointer = GetComponent<LaserPointerCtrl>();
+        }
+        if (GetComponent<TeleportCtrl>()) {
+            teleport = GetComponent<TeleportCtrl>();
+        }
 	}
-	
+
+	void FixedUpdate () {
+        if(controller == null) { return; }
+        if (trackedObj.isValid && laserPointer && isLaserPointerOn) {
+            teleport.SetTeleportPosition(laserPointer.LaserPointerOn());
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
         //No controller
         if (controller == null) { return; }
 
+        //Grapping Item
         if (controller.GetPressDown(gripButton)) {
             interactingItem = FindClosestTouchedItem();
 
@@ -42,6 +64,17 @@ public class ViveCtrl : MonoBehaviour {
         if (controller.GetPressUp(gripButton) && interactingItem) {
             interactingItem.EndInteraction(this);
         }
+        //End
+
+        //Teleport
+        if (controller.GetPressDown(triggerButton) && isTeleportOn) {
+            teleport.Teleport();
+        }
+
+        if (controller.GetPressUp(triggerButton)) {
+
+        }
+        //End
 	}
 
     ItemCtrl FindClosestTouchedItem () {
@@ -63,6 +96,7 @@ public class ViveCtrl : MonoBehaviour {
         ItemCtrl collidedItem = coll.GetComponent<ItemCtrl>();
         if (collidedItem) {
             touchedItems.Add(collidedItem);
+            
             FindClosestTouchedItem().OutlineOn();
         }
     }
